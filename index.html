@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Tools | Marketwake</title>
+    <link rel="icon" type="image/png" href="images/Primary Icon.png">
+    <style>
+        /* ========== FONTS ========== */
+        @font-face {
+            font-family: 'Victor Serif';
+            src: url('fonts/VictorSerif-40Regular.woff2') format('woff2');
+            font-weight: 400;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Victor Serif';
+            src: url('fonts/VictorSerif-50Medium.woff2') format('woff2');
+            font-weight: 500;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Victor Serif';
+            src: url('fonts/VictorSerif-60Semibold.woff2') format('woff2');
+            font-weight: 600;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Inter Tight';
+            src: url('fonts/InterTight-Regular.ttf') format('truetype');
+            font-weight: 400;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Inter Tight';
+            src: url('fonts/InterTight-Medium.ttf') format('truetype');
+            font-weight: 500;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Inter Tight';
+            src: url('fonts/InterTight-SemiBold.ttf') format('truetype');
+            font-weight: 600;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Inter Tight';
+            src: url('fonts/InterTight-Bold.ttf') format('truetype');
+            font-weight: 700;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Space Grotesk';
+            src: url('fonts/SpaceGrotesk-Regular.ttf') format('truetype');
+            font-weight: 400;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Space Grotesk';
+            src: url('fonts/SpaceGrotesk-Medium.ttf') format('truetype');
+            font-weight: 500;
+            font-style: normal;
+        }
+
+        /* ========== RESET & BASE ========== */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --font-serif: 'Victor Serif', Georgia, serif;
+            --font-sans: 'Inter Tight', -apple-system, sans-serif;
+            --font-grotesk: 'Space Grotesk', sans-serif;
+        }
+
+        /* Dark theme (default) */
+        [data-theme="dark"] {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #222222;
+            --bg-surface: #2a2a2a;
+            --bg-hover: #333333;
+            --border: #3a3a3a;
+            --text-primary: #ffffff;
+            --text-secondary: #f0f0f0;
+            --text-muted: #888888;
+            --text-faint: #666666;
+            --bar-fill: #ffffff;
+            --btn-active-bg: #ffffff;
+            --btn-active-text: #1a1a1a;
+            --toast-bg: #ffffff;
+            --toast-text: #1a1a1a;
+            --logo-src: url('images/MTWK_PrimaryLogo_White.png');
+        }
+
+        /* Light theme */
+        [data-theme="light"] {
+            --bg-primary: #f5f5f5;
+            --bg-secondary: #ffffff;
+            --bg-surface: #ffffff;
+            --bg-hover: #e8e8e8;
+            --border: #e0e0e0;
+            --text-primary: #1a1a1a;
+            --text-secondary: #333333;
+            --text-muted: #777777;
+            --text-faint: #999999;
+            --bar-fill: #1a1a1a;
+            --btn-active-bg: #1a1a1a;
+            --btn-active-text: #ffffff;
+            --toast-bg: #1a1a1a;
+            --toast-text: #ffffff;
+        }
+
+        html { font-size: 16px; }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+            line-height: 1.6;
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* ========== HEADER ========== */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.25rem 2rem;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-secondary);
+            transition: background 0.3s, border-color 0.3s;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-container img {
+            height: 28px;
+            width: auto;
+        }
+
+        .header-title {
+            font-family: var(--font-grotesk);
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* ========== THEME TOGGLE ========== */
+        .theme-toggle {
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.4rem 0.6rem;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 1rem;
+            line-height: 1;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-toggle:hover {
+            color: var(--text-primary);
+            border-color: var(--text-muted);
+        }
+
+        /* ========== TAB NAVIGATION ========== */
+        .tab-nav {
+            display: flex;
+            gap: 0;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 0 2rem;
+            transition: background 0.3s, border-color 0.3s;
+        }
+
+        .tab-btn {
+            font-family: var(--font-sans);
+            font-size: 0.875rem;
+            font-weight: 500;
+            padding: 0.875rem 1.5rem;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            position: relative;
+            transition: color 0.2s;
+        }
+
+        .tab-btn:hover { color: var(--text-secondary); }
+
+        .tab-btn.active {
+            color: var(--text-primary);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--text-primary);
+        }
+
+        /* ========== MAIN CONTENT ========== */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        .tool-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .tool-header h1 {
+            font-family: var(--font-serif);
+            font-weight: 500;
+            font-size: 2rem;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .tool-header p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        /* ========== STATS BAR ========== */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1px;
+            background: var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+            transition: background 0.3s;
+        }
+
+        .stat-item {
+            background: var(--bg-surface);
+            padding: 1rem 1.25rem;
+            text-align: center;
+            transition: background 0.3s;
+        }
+
+        .stat-value {
+            font-family: var(--font-serif);
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+
+        .stat-label {
+            font-family: var(--font-grotesk);
+            font-size: 0.65rem;
+            font-weight: 500;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        /* ========== TEXT AREA ========== */
+        .textarea-container {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .text-input {
+            width: 100%;
+            min-height: 280px;
+            padding: 1.25rem;
+            font-family: var(--font-sans);
+            font-size: 1rem;
+            line-height: 1.7;
+            color: var(--text-secondary);
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.2s, background 0.3s, color 0.3s;
+        }
+
+        .text-input:focus {
+            border-color: var(--text-muted);
+        }
+
+        .text-input::placeholder {
+            color: var(--text-faint);
+        }
+
+        .textarea-actions {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            font-family: var(--font-sans);
+            font-size: 0.75rem;
+            font-weight: 500;
+            padding: 0.35rem 0.75rem;
+            background: var(--bg-hover);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: var(--border);
+            color: var(--text-secondary);
+        }
+
+        /* ========== DETAILS SECTION ========== */
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .detail-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.25rem;
+            transition: background 0.3s, border-color 0.3s;
+        }
+
+        .detail-card h3 {
+            font-family: var(--font-serif);
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.4rem 0;
+            font-size: 0.875rem;
+        }
+
+        .detail-row .label { color: var(--text-muted); }
+        .detail-row .value { color: var(--text-secondary); font-weight: 500; }
+
+        /* ========== KEYWORD DENSITY ========== */
+        .keyword-section {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.25rem;
+            transition: background 0.3s, border-color 0.3s;
+        }
+
+        .keyword-section h3 {
+            font-family: var(--font-serif);
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .keyword-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 1rem;
+        }
+
+        .kw-tab {
+            font-family: var(--font-sans);
+            font-size: 0.8rem;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .kw-tab:first-child { border-radius: 4px 0 0 4px; }
+        .kw-tab:last-child { border-radius: 0 4px 4px 0; }
+        .kw-tab:not(:first-child) { border-left: none; }
+
+        .kw-tab.active {
+            background: var(--border);
+            color: var(--text-primary);
+        }
+
+        .keyword-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .keyword-table th {
+            font-family: var(--font-grotesk);
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            text-align: left;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .keyword-table td {
+            font-size: 0.85rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border);
+            border-bottom-style: dotted;
+            opacity: 0.8;
+        }
+
+        .keyword-table td:first-child { color: var(--text-secondary); }
+        .keyword-table td:nth-child(2) { color: var(--text-muted); text-align: center; }
+        .keyword-table td:last-child { color: var(--text-muted); text-align: right; }
+        .keyword-table th:nth-child(2) { text-align: center; }
+        .keyword-table th:last-child { text-align: right; }
+
+        .keyword-empty {
+            text-align: center;
+            color: var(--text-faint);
+            padding: 2rem 0;
+            font-size: 0.875rem;
+        }
+
+        /* ========== CAPITALIZE TAB ========== */
+        .capitalize-styles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .cap-style-btn {
+            font-family: var(--font-sans);
+            font-size: 0.8rem;
+            font-weight: 500;
+            padding: 0.6rem 1.25rem;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .cap-style-btn:hover {
+            border-color: var(--text-muted);
+            color: var(--text-secondary);
+        }
+
+        .cap-style-btn.active {
+            background: var(--btn-active-bg);
+            color: var(--btn-active-text);
+            border-color: var(--btn-active-bg);
+        }
+
+        .capitalize-output-container {
+            position: relative;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.25rem;
+            min-height: 80px;
+            margin-bottom: 1.5rem;
+            transition: background 0.3s, border-color 0.3s;
+        }
+
+        .capitalize-output {
+            font-family: var(--font-sans);
+            font-size: 1rem;
+            line-height: 1.7;
+            color: var(--text-secondary);
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .capitalize-output.placeholder {
+            color: var(--text-faint);
+        }
+
+        .copy-badge {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+        }
+
+        .style-guide-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .guide-btn {
+            font-family: var(--font-sans);
+            font-size: 0.7rem;
+            font-weight: 500;
+            padding: 0.35rem 0.75rem;
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-faint);
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.05em;
+        }
+
+        .guide-btn:hover { color: var(--text-muted); border-color: var(--text-muted); }
+        .guide-btn.active { color: var(--text-secondary); border-color: var(--text-secondary); }
+
+        .guide-selector-label {
+            font-family: var(--font-grotesk);
+            font-size: 0.65rem;
+            font-weight: 500;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-faint);
+            margin-bottom: 0.5rem;
+        }
+
+        .style-guide-container {
+            margin-bottom: 1.5rem;
+        }
+
+        /* ========== COUNTER LAYOUT ========== */
+        .counter-layout {
+            display: grid;
+            grid-template-columns: 1fr 260px;
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        .counter-main { min-width: 0; }
+
+        /* ========== LETTER DENSITY SIDEBAR ========== */
+        .letter-density {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.25rem;
+            position: sticky;
+            top: 1rem;
+            transition: background 0.3s, border-color 0.3s;
+        }
+
+        .letter-density h3 {
+            font-family: var(--font-serif);
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .letter-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.3rem 0;
+            font-size: 0.8rem;
+        }
+
+        .letter-char {
+            font-family: var(--font-sans);
+            font-weight: 600;
+            color: var(--text-primary);
+            width: 1.25rem;
+            text-transform: uppercase;
+        }
+
+        .letter-bar-bg {
+            flex: 1;
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .letter-bar-fill {
+            height: 100%;
+            background: var(--bar-fill);
+            border-radius: 3px;
+            transition: width 0.2s ease;
+        }
+
+        .letter-stat {
+            font-family: var(--font-sans);
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            width: 4rem;
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .letter-empty {
+            color: var(--text-faint);
+            font-size: 0.8rem;
+            text-align: center;
+            padding: 1rem 0;
+        }
+
+        /* ========== COUNT SPACES TOGGLE ========== */
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            justify-content: flex-end;
+            margin-bottom: 0.75rem;
+        }
+
+        .toggle-label {
+            font-family: var(--font-sans);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 36px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            inset: 0;
+            background: var(--border);
+            border-radius: 10px;
+            transition: background 0.2s;
+        }
+
+        .toggle-slider::before {
+            content: '';
+            position: absolute;
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background: var(--text-muted);
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background: var(--btn-active-bg);
+        }
+
+        .toggle-switch input:checked + .toggle-slider::before {
+            transform: translateX(16px);
+            background: var(--btn-active-text);
+        }
+
+        /* ========== FOOTER ========== */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            border-top: 1px solid var(--border);
+            margin-top: 2rem;
+            transition: border-color 0.3s;
+        }
+
+        footer p {
+            font-size: 0.8rem;
+            color: var(--text-faint);
+        }
+
+        footer img {
+            height: 18px;
+            margin-bottom: 0.5rem;
+            opacity: 0.5;
+        }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 900px) {
+            .counter-layout { grid-template-columns: 1fr; }
+            .letter-density { position: static; }
+        }
+
+        @media (max-width: 768px) {
+            header { padding: 1rem; }
+            main { padding: 1rem; }
+            .tab-nav { padding: 0 1rem; }
+            .stats-bar { grid-template-columns: repeat(3, 1fr); }
+            .details-grid { grid-template-columns: 1fr; }
+            .tool-header h1 { font-size: 1.5rem; }
+            .stat-value { font-size: 1.4rem; }
+        }
+
+        @media (max-width: 480px) {
+            .stats-bar { grid-template-columns: repeat(2, 1fr); }
+            .capitalize-styles { gap: 0.35rem; }
+            .cap-style-btn { padding: 0.5rem 0.75rem; font-size: 0.75rem; }
+        }
+
+        /* ========== TOAST ========== */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--toast-bg);
+            color: var(--toast-text);
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+    <div class="logo-container">
+        <img class="logo-swap" src="images/MTWK_PrimaryLogo_White.png" alt="Marketwake">
+    </div>
+    <div class="header-right">
+        <span class="header-title">Text Tools</span>
+        <button class="theme-toggle" id="theme-toggle" title="Toggle light/dark mode">
+            <span id="theme-icon">&#9789;</span>
+        </button>
+    </div>
+</header>
+
+<!-- Tab Navigation -->
+<nav class="tab-nav">
+    <button class="tab-btn active" data-tab="counter">Character Counter</button>
+    <button class="tab-btn" data-tab="capitalize">Capitalize Text</button>
+</nav>
+
+<!-- Main Content -->
+<main>
+
+    <!-- ========== CHARACTER COUNTER TAB ========== -->
+    <div id="tab-counter" class="tab-panel active">
+        <div class="tool-header">
+            <h1>Character Counter</h1>
+            <p>Paste or type your text below to get an instant breakdown of characters, words, sentences, and more.</p>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-value" id="stat-chars">0</div>
+                <div class="stat-label">Characters</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="stat-chars-no-space">0</div>
+                <div class="stat-label">No Spaces</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="stat-words">0</div>
+                <div class="stat-label">Words</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="stat-sentences">0</div>
+                <div class="stat-label">Sentences</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="stat-paragraphs">0</div>
+                <div class="stat-label">Paragraphs</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="stat-lines">0</div>
+                <div class="stat-label">Lines</div>
+            </div>
+        </div>
+
+        <!-- Toggle Row -->
+        <div class="toggle-row">
+            <label class="toggle-switch">
+                <input type="checkbox" id="count-spaces-toggle" checked>
+                <span class="toggle-slider"></span>
+            </label>
+            <label class="toggle-label" for="count-spaces-toggle">Count spaces</label>
+        </div>
+
+        <!-- Two-Column Layout -->
+        <div class="counter-layout">
+            <div class="counter-main">
+                <!-- Text Area -->
+                <div class="textarea-container">
+                    <textarea id="counter-input" class="text-input" placeholder="Start typing or paste your text here..."></textarea>
+                    <div class="textarea-actions">
+                        <button class="action-btn" onclick="copyText('counter-input')">Copy</button>
+                        <button class="action-btn" onclick="clearText('counter-input')">Clear</button>
+                    </div>
+                </div>
+
+                <!-- Details Grid -->
+                <div class="details-grid">
+                    <div class="detail-card">
+                        <h3>Reading & Speaking</h3>
+                        <div class="detail-row">
+                            <span class="label">Reading Time</span>
+                            <span class="value" id="detail-read-time">0 sec</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Speaking Time</span>
+                            <span class="value" id="detail-speak-time">0 sec</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Hand Writing Time</span>
+                            <span class="value" id="detail-hand-time">0 sec</span>
+                        </div>
+                    </div>
+                    <div class="detail-card">
+                        <h3>Text Details</h3>
+                        <div class="detail-row">
+                            <span class="label">Avg. Word Length</span>
+                            <span class="value" id="detail-avg-word">0</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Avg. Sentence Length</span>
+                            <span class="value" id="detail-avg-sentence">0 words</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Longest Word</span>
+                            <span class="value" id="detail-longest-word">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Keyword Density -->
+                <div class="keyword-section">
+                    <h3>Keyword Density</h3>
+                    <div class="keyword-tabs">
+                        <button class="kw-tab active" data-ngram="1">1 Word</button>
+                        <button class="kw-tab" data-ngram="2">2 Words</button>
+                        <button class="kw-tab" data-ngram="3">3 Words</button>
+                    </div>
+                    <table class="keyword-table">
+                        <thead>
+                            <tr>
+                                <th>Keyword</th>
+                                <th>Count</th>
+                                <th>Density</th>
+                            </tr>
+                        </thead>
+                        <tbody id="keyword-body">
+                            <tr><td colspan="3" class="keyword-empty">Start typing to see keyword density</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Letter Density Sidebar -->
+            <div class="letter-density">
+                <h3>Letter Density</h3>
+                <div id="letter-density-body">
+                    <div class="letter-empty">Start typing to see letter frequency</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== CAPITALIZE TAB ========== -->
+    <div id="tab-capitalize" class="tab-panel">
+        <div class="tool-header">
+            <h1>Capitalize Text</h1>
+            <p>Transform your text with different capitalization styles. Perfect for titles, headings, and formatting.</p>
+        </div>
+
+        <!-- Text Area -->
+        <div class="textarea-container">
+            <textarea id="capitalize-input" class="text-input" placeholder="Type or paste your text here to capitalize..." style="min-height: 160px;"></textarea>
+            <div class="textarea-actions">
+                <button class="action-btn" onclick="clearText('capitalize-input')">Clear</button>
+            </div>
+        </div>
+
+        <!-- Style Guide Selector (for Title Case) -->
+        <div class="style-guide-container" id="style-guide-container" style="display: none;">
+            <div class="guide-selector-label">Style Guide</div>
+            <div class="style-guide-selector">
+                <button class="guide-btn active" data-guide="apa">APA</button>
+                <button class="guide-btn" data-guide="chicago">Chicago</button>
+                <button class="guide-btn" data-guide="ap">AP</button>
+                <button class="guide-btn" data-guide="mla">MLA</button>
+                <button class="guide-btn" data-guide="nyt">NY Times</button>
+            </div>
+        </div>
+
+        <!-- Capitalization Styles -->
+        <div class="capitalize-styles">
+            <button class="cap-style-btn active" data-style="title">Title Case</button>
+            <button class="cap-style-btn" data-style="sentence">Sentence Case</button>
+            <button class="cap-style-btn" data-style="upper">UPPERCASE</button>
+            <button class="cap-style-btn" data-style="lower">lowercase</button>
+            <button class="cap-style-btn" data-style="alternating">aLtErNaTiNg</button>
+            <button class="cap-style-btn" data-style="first">First Letter</button>
+            <button class="cap-style-btn" data-style="inverse">iNVERSE</button>
+        </div>
+
+        <!-- Output -->
+        <div class="capitalize-output-container">
+            <div id="capitalize-output" class="capitalize-output placeholder">Your capitalized text will appear here</div>
+            <div class="copy-badge">
+                <button class="action-btn" onclick="copyCapOutput()">Copy</button>
+            </div>
+        </div>
+
+        <!-- Capitalize Stats -->
+        <div class="stats-bar" style="margin-top: 0;">
+            <div class="stat-item">
+                <div class="stat-value" id="cap-stat-chars">0</div>
+                <div class="stat-label">Characters</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="cap-stat-words">0</div>
+                <div class="stat-label">Words</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="cap-stat-sentences">0</div>
+                <div class="stat-label">Sentences</div>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<!-- Footer -->
+<footer>
+    <img class="logo-swap" src="images/MTWK_PrimaryLogo_White.png" alt="Marketwake">
+    <p>&copy; 2026 Marketwake. All rights reserved.</p>
+</footer>
+
+<!-- Toast -->
+<div class="toast" id="toast">Copied to clipboard</div>
+
+<script>
+// ========== THEME TOGGLE ==========
+const THEME_KEY = 'mw_theme';
+
+function setTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem(THEME_KEY, theme);
+
+    // Update icon
+    document.getElementById('theme-icon').innerHTML = theme === 'dark' ? '&#9789;' : '&#9788;';
+
+    // Swap logos
+    const logoSrc = theme === 'dark' ? 'images/MTWK_PrimaryLogo_White.png' : 'images/MTWK_PrimaryLogo_Black.png';
+    document.querySelectorAll('.logo-swap').forEach(img => img.src = logoSrc);
+}
+
+// Initialize theme from localStorage or system preference
+(function() {
+    const saved = localStorage.getItem(THEME_KEY);
+    if (saved) {
+        setTheme(saved);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+        setTheme('light');
+    }
+})();
+
+document.getElementById('theme-toggle').addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-theme');
+    setTheme(current === 'dark' ? 'light' : 'dark');
+});
+
+// ========== TAB SWITCHING ==========
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+});
+
+// ========== TOAST ==========
+function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2000);
+}
+
+// ========== UTILITY ==========
+function copyText(id) {
+    const el = document.getElementById(id);
+    navigator.clipboard.writeText(el.value).then(() => showToast('Copied to clipboard'));
+}
+
+function clearText(id) {
+    const el = document.getElementById(id);
+    el.value = '';
+    el.dispatchEvent(new Event('input'));
+}
+
+function copyCapOutput() {
+    const el = document.getElementById('capitalize-output');
+    if (!el.classList.contains('placeholder')) {
+        navigator.clipboard.writeText(el.textContent).then(() => showToast('Copied to clipboard'));
+    }
+}
+
+// ========== CHARACTER COUNTER ==========
+const counterInput = document.getElementById('counter-input');
+const countSpacesToggle = document.getElementById('count-spaces-toggle');
+let currentNgram = 1;
+
+counterInput.addEventListener('input', updateCounterStats);
+countSpacesToggle.addEventListener('change', updateCounterStats);
+
+function countWords(text) {
+    const trimmed = text.trim();
+    if (!trimmed) return [];
+    return trimmed.split(/\s+/);
+}
+
+function countSentences(text) {
+    const trimmed = text.trim();
+    if (!trimmed) return 0;
+    const sentences = trimmed.split(/[.!?]+/).filter(s => s.trim().length > 0);
+    return sentences.length;
+}
+
+function countParagraphs(text) {
+    const trimmed = text.trim();
+    if (!trimmed) return 0;
+    return trimmed.split(/\n\s*\n/).filter(p => p.trim().length > 0).length;
+}
+
+function countLines(text) {
+    if (!text.trim()) return 0;
+    return text.split('\n').filter(l => l.trim().length > 0).length;
+}
+
+function formatTime(seconds) {
+    if (seconds < 1) return '0 sec';
+    if (seconds < 60) return Math.round(seconds) + ' sec';
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.round(seconds % 60);
+    if (mins < 60) {
+        return secs > 0 ? mins + ' min ' + secs + ' sec' : mins + ' min';
+    }
+    const hrs = Math.floor(mins / 60);
+    const remainMins = mins % 60;
+    return hrs + ' hr ' + remainMins + ' min';
+}
+
+function updateCounterStats() {
+    const text = counterInput.value;
+    const includeSpaces = countSpacesToggle.checked;
+    const chars = includeSpaces ? text.length : text.replace(/\s/g, '').length;
+    const charsNoSpace = text.replace(/\s/g, '').length;
+    const words = countWords(text);
+    const wordCount = words.length;
+    const sentenceCount = countSentences(text);
+    const paragraphCount = countParagraphs(text);
+    const lineCount = countLines(text);
+
+    document.getElementById('stat-chars').textContent = chars.toLocaleString();
+    document.getElementById('stat-chars-no-space').textContent = charsNoSpace.toLocaleString();
+    document.getElementById('stat-words').textContent = wordCount.toLocaleString();
+    document.getElementById('stat-sentences').textContent = sentenceCount;
+    document.getElementById('stat-paragraphs').textContent = paragraphCount;
+    document.getElementById('stat-lines').textContent = lineCount;
+
+    // Reading time (avg 238 wpm), Speaking (avg 150 wpm), Hand writing (avg 13 wpm)
+    const readTime = wordCount / 238;
+    const speakTime = wordCount / 150;
+    const handTime = wordCount / 13;
+
+    document.getElementById('detail-read-time').textContent = formatTime(readTime * 60);
+    document.getElementById('detail-speak-time').textContent = formatTime(speakTime * 60);
+    document.getElementById('detail-hand-time').textContent = formatTime(handTime * 60);
+
+    // Averages
+    if (wordCount > 0) {
+        const totalWordLen = words.reduce((sum, w) => sum + w.replace(/[^a-zA-Z]/g, '').length, 0);
+        const avgWordLen = (totalWordLen / wordCount).toFixed(1);
+        document.getElementById('detail-avg-word').textContent = avgWordLen + ' chars';
+
+        const avgSentenceLen = sentenceCount > 0 ? (wordCount / sentenceCount).toFixed(1) : '0';
+        document.getElementById('detail-avg-sentence').textContent = avgSentenceLen + ' words';
+
+        const longestWord = words.reduce((a, b) => a.replace(/[^a-zA-Z]/g, '').length >= b.replace(/[^a-zA-Z]/g, '').length ? a : b, '');
+        const clean = longestWord.replace(/[^a-zA-Z'-]/g, '');
+        document.getElementById('detail-longest-word').textContent = clean || '-';
+    } else {
+        document.getElementById('detail-avg-word').textContent = '0';
+        document.getElementById('detail-avg-sentence').textContent = '0 words';
+        document.getElementById('detail-longest-word').textContent = '-';
+    }
+
+    updateKeywordDensity(text, wordCount);
+    updateLetterDensity(text);
+}
+
+// ========== LETTER DENSITY ==========
+function updateLetterDensity(text) {
+    const container = document.getElementById('letter-density-body');
+    const letters = text.toUpperCase().replace(/[^A-Z]/g, '');
+
+    if (letters.length === 0) {
+        container.innerHTML = '<div class="letter-empty">Start typing to see letter frequency</div>';
+        return;
+    }
+
+    const freq = {};
+    for (const ch of letters) {
+        freq[ch] = (freq[ch] || 0) + 1;
+    }
+
+    const sorted = Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 15);
+    const maxCount = sorted[0][1];
+
+    container.innerHTML = sorted.map(([char, count]) => {
+        const pct = ((count / letters.length) * 100).toFixed(1);
+        const barWidth = ((count / maxCount) * 100).toFixed(0);
+        return `<div class="letter-row">
+            <span class="letter-char">${char}</span>
+            <div class="letter-bar-bg"><div class="letter-bar-fill" style="width: ${barWidth}%"></div></div>
+            <span class="letter-stat">${count} (${pct}%)</span>
+        </div>`;
+    }).join('');
+}
+
+// ========== KEYWORD DENSITY ==========
+const stopWords = new Set(['the','be','to','of','and','a','in','that','have','i','it','for','not','on',
+    'with','he','as','you','do','at','this','but','his','by','from','they','we','say','her','she','or',
+    'an','will','my','one','all','would','there','their','what','so','up','out','if','about','who','get',
+    'which','go','me','when','make','can','like','time','no','just','him','know','take','people','into',
+    'year','your','good','some','could','them','see','other','than','then','now','look','only','come',
+    'its','over','think','also','back','after','use','two','how','our','work','first','well','way',
+    'even','new','want','because','any','these','give','day','most','us','is','are','was','were','been',
+    'has','had','did','does','am','being','having','doing']);
+
+function getNgrams(text, n) {
+    const words = text.toLowerCase().replace(/[^a-z0-9\s'-]/g, '').split(/\s+/).filter(w => w.length > 0);
+    const ngrams = {};
+    for (let i = 0; i <= words.length - n; i++) {
+        const gram = words.slice(i, i + n);
+        if (n === 1 && stopWords.has(gram[0])) continue;
+        if (gram.some(w => w.length === 0)) continue;
+        const key = gram.join(' ');
+        ngrams[key] = (ngrams[key] || 0) + 1;
+    }
+    return ngrams;
+}
+
+function updateKeywordDensity(text, wordCount) {
+    const ngrams = getNgrams(text, currentNgram);
+    const tbody = document.getElementById('keyword-body');
+
+    const sorted = Object.entries(ngrams)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 15);
+
+    if (sorted.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" class="keyword-empty">Start typing to see keyword density</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = sorted.map(([keyword, count]) => {
+        const density = wordCount > 0 ? ((count / wordCount) * 100).toFixed(1) : '0.0';
+        return `<tr><td>${keyword}</td><td>${count}</td><td>${density}%</td></tr>`;
+    }).join('');
+}
+
+document.querySelectorAll('.kw-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.kw-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentNgram = parseInt(tab.dataset.ngram);
+        updateCounterStats();
+    });
+});
+
+// ========== CAPITALIZE TEXT ==========
+const capInput = document.getElementById('capitalize-input');
+const capOutput = document.getElementById('capitalize-output');
+let currentCapStyle = 'title';
+let currentGuide = 'apa';
+
+// Minor words per style guide
+const minorWords = {
+    apa: new Set(['a','an','and','as','at','but','by','for','in','nor','of','on','or','per','so','the','to','up','via','yet']),
+    chicago: new Set(['a','an','and','as','at','but','by','for','in','nor','of','on','or','so','the','to','yet']),
+    ap: new Set(['a','an','and','at','but','by','for','in','nor','of','on','or','so','the','to','up']),
+    mla: new Set(['a','an','and','as','at','but','by','for','in','nor','of','on','or','so','the','to','yet']),
+    nyt: new Set(['a','an','and','as','at','but','by','for','in','nor','of','on','or','so','the','to'])
+};
+
+function titleCase(text, guide) {
+    const minor = minorWords[guide] || minorWords.apa;
+    return text.split('\n').map(line => {
+        const tokens = line.split(/(\s+)/);
+        const wordTokens = [];
+        const wordPositions = [];
+        tokens.forEach((tok, idx) => {
+            if (!/^\s+$/.test(tok)) {
+                wordPositions.push(idx);
+                wordTokens.push(tok);
+            }
+        });
+
+        return tokens.map((token, idx) => {
+            if (/^\s+$/.test(token)) return token;
+            const lowerWord = token.toLowerCase();
+            const posIndex = wordPositions.indexOf(idx);
+            const isFirst = posIndex === 0;
+            const isLast = posIndex === wordTokens.length - 1;
+
+            // Always capitalize first and last word
+            if (isFirst || isLast) {
+                return lowerWord.charAt(0).toUpperCase() + lowerWord.slice(1);
+            }
+
+            // Check if it's a minor word
+            if (minor.has(lowerWord)) {
+                return lowerWord;
+            }
+
+            // Capitalize the word
+            return lowerWord.charAt(0).toUpperCase() + lowerWord.slice(1);
+        }).join('');
+    }).join('\n');
+}
+
+function sentenceCase(text) {
+    return text.toLowerCase().replace(/(^\s*|[.!?]\s+)([a-z])/g, (match, prefix, letter) => {
+        return prefix + letter.toUpperCase();
+    });
+}
+
+function alternatingCase(text) {
+    let i = 0;
+    return text.split('').map(char => {
+        if (/[a-zA-Z]/.test(char)) {
+            const result = i % 2 === 0 ? char.toLowerCase() : char.toUpperCase();
+            i++;
+            return result;
+        }
+        return char;
+    }).join('');
+}
+
+function inverseCase(text) {
+    return text.split('').map(char => {
+        if (char === char.toUpperCase()) return char.toLowerCase();
+        if (char === char.toLowerCase()) return char.toUpperCase();
+        return char;
+    }).join('');
+}
+
+function firstLetterCase(text) {
+    return text.toLowerCase().replace(/\b([a-z])/g, (match, letter) => letter.toUpperCase());
+}
+
+function applyCapitalize() {
+    const text = capInput.value;
+    if (!text.trim()) {
+        capOutput.textContent = 'Your capitalized text will appear here';
+        capOutput.classList.add('placeholder');
+        updateCapStats('');
+        return;
+    }
+
+    let result = '';
+    switch (currentCapStyle) {
+        case 'title':
+            result = titleCase(text, currentGuide);
+            break;
+        case 'sentence':
+            result = sentenceCase(text);
+            break;
+        case 'upper':
+            result = text.toUpperCase();
+            break;
+        case 'lower':
+            result = text.toLowerCase();
+            break;
+        case 'alternating':
+            result = alternatingCase(text);
+            break;
+        case 'first':
+            result = firstLetterCase(text);
+            break;
+        case 'inverse':
+            result = inverseCase(text);
+            break;
+    }
+
+    capOutput.textContent = result;
+    capOutput.classList.remove('placeholder');
+    updateCapStats(text);
+}
+
+function updateCapStats(text) {
+    const chars = text.length;
+    const words = countWords(text).length;
+    const sentences = countSentences(text);
+    document.getElementById('cap-stat-chars').textContent = chars.toLocaleString();
+    document.getElementById('cap-stat-words').textContent = words.toLocaleString();
+    document.getElementById('cap-stat-sentences').textContent = sentences;
+}
+
+capInput.addEventListener('input', applyCapitalize);
+
+// Capitalize style buttons
+document.querySelectorAll('.cap-style-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.cap-style-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentCapStyle = btn.dataset.style;
+
+        // Show/hide style guide selector
+        const guideContainer = document.getElementById('style-guide-container');
+        guideContainer.style.display = currentCapStyle === 'title' ? 'block' : 'none';
+
+        applyCapitalize();
+    });
+});
+
+// Style guide buttons
+document.querySelectorAll('.guide-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.guide-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentGuide = btn.dataset.guide;
+        applyCapitalize();
+    });
+});
+
+// Show style guide selector by default since title case is default
+document.getElementById('style-guide-container').style.display = 'block';
+
+// ========== LOCAL STORAGE PERSISTENCE ==========
+const STORAGE_KEY_COUNTER = 'mw_counter_text';
+const STORAGE_KEY_CAP = 'mw_capitalize_text';
+
+// Restore saved text on load
+const savedCounter = localStorage.getItem(STORAGE_KEY_COUNTER);
+if (savedCounter) {
+    counterInput.value = savedCounter;
+    updateCounterStats();
+}
+const savedCap = localStorage.getItem(STORAGE_KEY_CAP);
+if (savedCap) {
+    capInput.value = savedCap;
+    applyCapitalize();
+}
+
+// Save on input
+counterInput.addEventListener('input', () => {
+    localStorage.setItem(STORAGE_KEY_COUNTER, counterInput.value);
+});
+capInput.addEventListener('input', () => {
+    localStorage.setItem(STORAGE_KEY_CAP, capInput.value);
+});
+
+// Auto-focus the textarea
+setTimeout(() => counterInput.focus(), 300);
+</script>
+
+</body>
+</html>
