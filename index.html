@@ -194,7 +194,8 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.06);
         }
 
-        [data-theme="light"] .text-input {
+        [data-theme="light"] .text-input,
+        [data-theme="light"] .keyword-input {
             background: #ffffff;
             border-color: #d4d4d4;
         }
@@ -425,67 +426,79 @@
             border-bottom: 1px solid var(--border);
         }
 
-        .keyword-tabs {
+        .keyword-input-row {
             display: flex;
-            gap: 0;
+            gap: 0.5rem;
             margin-bottom: 1rem;
         }
 
-        .kw-tab {
+        .keyword-input {
+            flex: 1;
             font-family: var(--font-sans);
-            font-size: 0.8rem;
-            font-weight: 500;
-            padding: 0.5rem 1rem;
-            background: none;
+            font-size: 0.9rem;
+            padding: 0.6rem 0.75rem;
+            background: var(--bg-primary);
             border: 1px solid var(--border);
-            color: var(--text-muted);
-            cursor: pointer;
-            transition: all 0.2s;
+            border-radius: 6px;
+            color: var(--text-secondary);
+            outline: none;
+            transition: border-color 0.2s, background 0.3s, color 0.3s;
         }
 
-        .kw-tab:first-child { border-radius: 4px 0 0 4px; }
-        .kw-tab:last-child { border-radius: 0 4px 4px 0; }
-        .kw-tab:not(:first-child) { border-left: none; }
+        .keyword-input:focus {
+            border-color: var(--text-muted);
+        }
 
-        .kw-tab.active {
+        .keyword-input::placeholder {
+            color: var(--text-faint);
+        }
+
+        .keyword-results {
+            display: flex;
+            gap: 1px;
             background: var(--border);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 0.75rem;
+        }
+
+        .keyword-result-item {
+            flex: 1;
+            background: var(--bg-primary);
+            padding: 0.75rem 1rem;
+            text-align: center;
+            transition: background 0.3s;
+        }
+
+        .keyword-result-value {
+            font-family: var(--font-serif);
+            font-size: 1.25rem;
+            font-weight: 600;
             color: var(--text-primary);
         }
 
-        .keyword-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .keyword-table th {
+        .keyword-result-label {
             font-family: var(--font-grotesk);
-            font-size: 0.7rem;
+            font-size: 0.6rem;
             font-weight: 500;
             letter-spacing: 0.1em;
             text-transform: uppercase;
             color: var(--text-muted);
-            text-align: left;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid var(--border);
+            margin-top: 0.15rem;
         }
-
-        .keyword-table td {
-            font-size: 0.85rem;
-            padding: 0.5rem 0;
-            border-bottom: 1px dotted var(--border);
-        }
-
-        .keyword-table td:first-child { color: var(--text-secondary); }
-        .keyword-table td:nth-child(2) { color: var(--text-muted); text-align: center; }
-        .keyword-table td:last-child { color: var(--text-muted); text-align: right; }
-        .keyword-table th:nth-child(2) { text-align: center; }
-        .keyword-table th:last-child { text-align: right; }
 
         .keyword-empty {
             text-align: center;
             color: var(--text-faint);
-            padding: 2rem 0;
-            font-size: 0.875rem;
+            padding: 1.25rem 0;
+            font-size: 0.85rem;
+        }
+
+        .keyword-highlight-info {
+            font-size: 0.8rem;
+            color: var(--text-faint);
+            margin-top: 0.75rem;
+            font-style: italic;
         }
 
         /* ========== CAPITALIZE TAB ========== */
@@ -910,23 +923,10 @@
                 <!-- Keyword Density -->
                 <div class="keyword-section">
                     <h3>Keyword Density</h3>
-                    <div class="keyword-tabs">
-                        <button class="kw-tab active" data-ngram="1">1 Word</button>
-                        <button class="kw-tab" data-ngram="2">2 Words</button>
-                        <button class="kw-tab" data-ngram="3">3 Words</button>
+                    <div class="keyword-input-row">
+                        <input type="text" id="keyword-input" class="keyword-input" placeholder="Enter a keyword or phrase to check...">
                     </div>
-                    <table class="keyword-table">
-                        <thead>
-                            <tr>
-                                <th>Keyword</th>
-                                <th>Count</th>
-                                <th>Density</th>
-                            </tr>
-                        </thead>
-                        <tbody id="keyword-body">
-                            <tr><td colspan="3" class="keyword-empty">Start typing to see keyword density</td></tr>
-                        </tbody>
-                    </table>
+                    <div id="keyword-results"></div>
                 </div>
             </div>
 
@@ -1076,7 +1076,6 @@ function copyCapOutput() {
 // ========== CHARACTER COUNTER ==========
 const counterInput = document.getElementById('counter-input');
 const countSpacesToggle = document.getElementById('count-spaces-toggle');
-let currentNgram = 1;
 
 counterInput.addEventListener('input', updateCounterStats);
 countSpacesToggle.addEventListener('change', updateCounterStats);
@@ -1163,7 +1162,7 @@ function updateCounterStats() {
         document.getElementById('detail-longest-word').textContent = '-';
     }
 
-    updateKeywordDensity(text, wordCount);
+    updateKeywordDensity();
     updateLetterDensity(text);
 }
 
@@ -1197,55 +1196,60 @@ function updateLetterDensity(text) {
 }
 
 // ========== KEYWORD DENSITY ==========
-const stopWords = new Set(['the','be','to','of','and','a','in','that','have','i','it','for','not','on',
-    'with','he','as','you','do','at','this','but','his','by','from','they','we','say','her','she','or',
-    'an','will','my','one','all','would','there','their','what','so','up','out','if','about','who','get',
-    'which','go','me','when','make','can','like','time','no','just','him','know','take','people','into',
-    'year','your','good','some','could','them','see','other','than','then','now','look','only','come',
-    'its','over','think','also','back','after','use','two','how','our','work','first','well','way',
-    'even','new','want','because','any','these','give','day','most','us','is','are','was','were','been',
-    'has','had','did','does','am','being','having','doing']);
+const keywordInput = document.getElementById('keyword-input');
+const keywordResults = document.getElementById('keyword-results');
 
-function getNgrams(text, n) {
-    const words = text.toLowerCase().replace(/[^a-z0-9\s'-]/g, '').split(/\s+/).filter(w => w.length > 0);
-    const ngrams = {};
-    for (let i = 0; i <= words.length - n; i++) {
-        const gram = words.slice(i, i + n);
-        if (n === 1 && stopWords.has(gram[0])) continue;
-        if (gram.some(w => w.length === 0)) continue;
-        const key = gram.join(' ');
-        ngrams[key] = (ngrams[key] || 0) + 1;
-    }
-    return ngrams;
-}
+keywordInput.addEventListener('input', updateKeywordDensity);
 
-function updateKeywordDensity(text, wordCount) {
-    const ngrams = getNgrams(text, currentNgram);
-    const tbody = document.getElementById('keyword-body');
+function updateKeywordDensity() {
+    const keyword = keywordInput.value.trim().toLowerCase();
+    const text = counterInput.value;
+    const textLower = text.toLowerCase();
+    const words = countWords(text);
+    const wordCount = words.length;
 
-    const sorted = Object.entries(ngrams)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 15);
-
-    if (sorted.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="3" class="keyword-empty">Start typing to see keyword density</td></tr>';
+    if (!keyword) {
+        keywordResults.innerHTML = '<div class="keyword-empty">Type a keyword above to check its density in your text</div>';
         return;
     }
 
-    tbody.innerHTML = sorted.map(([keyword, count]) => {
-        const density = wordCount > 0 ? ((count / wordCount) * 100).toFixed(1) : '0.0';
-        return `<tr><td>${keyword}</td><td>${count}</td><td>${density}%</td></tr>`;
-    }).join('');
-}
+    if (!text.trim()) {
+        keywordResults.innerHTML = '<div class="keyword-empty">Add text above first, then check keyword density</div>';
+        return;
+    }
 
-document.querySelectorAll('.kw-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-        document.querySelectorAll('.kw-tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        currentNgram = parseInt(tab.dataset.ngram);
-        updateCounterStats();
-    });
-});
+    // Count exact occurrences (case-insensitive, non-overlapping)
+    let count = 0;
+    let pos = 0;
+    while (pos <= textLower.length - keyword.length) {
+        const idx = textLower.indexOf(keyword, pos);
+        if (idx === -1) break;
+        count++;
+        pos = idx + keyword.length;
+    }
+
+    // Calculate density: keyword word count * occurrences / total words
+    const kwWordCount = keyword.split(/\s+/).length;
+    const density = wordCount > 0 ? ((kwWordCount * count / wordCount) * 100).toFixed(2) : '0.00';
+
+    keywordResults.innerHTML = `
+        <div class="keyword-results">
+            <div class="keyword-result-item">
+                <div class="keyword-result-value">${count}</div>
+                <div class="keyword-result-label">Occurrences</div>
+            </div>
+            <div class="keyword-result-item">
+                <div class="keyword-result-value">${density}%</div>
+                <div class="keyword-result-label">Density</div>
+            </div>
+            <div class="keyword-result-item">
+                <div class="keyword-result-value">${wordCount}</div>
+                <div class="keyword-result-label">Total Words</div>
+            </div>
+        </div>
+        ${count > 0 ? '<div class="keyword-highlight-info">Found "' + keyword.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '" ' + count + ' time' + (count !== 1 ? 's' : '') + ' in your text.</div>' : '<div class="keyword-highlight-info">Keyword not found in your text.</div>'}
+    `;
+}
 
 // ========== CAPITALIZE TEXT ==========
 const capInput = document.getElementById('capitalize-input');
