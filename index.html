@@ -1353,6 +1353,32 @@ const minorWords = {
     nyt: new Set(['a','an','and','as','at','but','by','for','in','nor','of','on','or','so','the','to'])
 };
 
+// Common acronyms that should always be uppercase in titles
+const acronyms = new Set([
+    'ai','api','seo','sem','ceo','cto','cfo','coo','cmo','url','html','css','js','php','sql',
+    'ux','ui','faq','pr','roi','kpi','saas','paas','iaas','ipo','usa','uk','eu','un','nasa',
+    'fbi','cia','gdp','ppc','cpa','cpc','ctr','cac','ltv','crm','cms','b2b','b2c','sms','mms',
+    'pdf','gif','jpg','jpeg','png','svg','ios','vr','ar','ml','nlp','llm','gpu','cpu','ram',
+    'ssd','usb','wifi','gps','nyc','la','sf','dc','atm','tv','hd','rsvp','asap','fyi','tba',
+    'tbd','aka','diy','vs','mw'
+]);
+
+function isAllCapsAcronym(token) {
+    const letters = token.match(/[A-Za-z]+/);
+    if (!letters) return false;
+    const word = letters[0];
+    return word.length >= 2 && word === word.toUpperCase();
+}
+
+function capitalizeHyphenPart(part, keepLower) {
+    if (!part) return part;
+    if (isAllCapsAcronym(part)) return part;
+    const lower = part.toLowerCase();
+    if (acronyms.has(lower)) return lower.toUpperCase();
+    if (keepLower) return lower;
+    return lower.charAt(0).toUpperCase() + lower.slice(1);
+}
+
 function titleCase(text, guide) {
     const minor = minorWords[guide] || minorWords.apa;
     return text.split('\n').map(line => {
@@ -1372,6 +1398,26 @@ function titleCase(text, guide) {
             const posIndex = wordPositions.indexOf(idx);
             const isFirst = posIndex === 0;
             const isLast = posIndex === wordTokens.length - 1;
+
+            // Preserve user-typed acronyms (AI, NASA, HTML, etc.)
+            if (isAllCapsAcronym(token)) {
+                return token;
+            }
+
+            // Known acronyms typed in lower/mixed case
+            if (acronyms.has(lowerWord)) {
+                return lowerWord.toUpperCase();
+            }
+
+            // Hyphenated compounds: capitalize the first part, then each subsequent
+            // part unless it's a minor word (matches Chicago; APA would always cap).
+            if (token.includes('-')) {
+                return token.split('-').map((part, i) => {
+                    const partLower = part.toLowerCase();
+                    const keepLower = i > 0 && minor.has(partLower) && !isFirst && !isLast;
+                    return capitalizeHyphenPart(part, keepLower);
+                }).join('-');
+            }
 
             // Always capitalize first and last word
             if (isFirst || isLast) {
